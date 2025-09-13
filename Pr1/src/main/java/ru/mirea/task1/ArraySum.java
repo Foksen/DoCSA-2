@@ -21,7 +21,7 @@ public class ArraySum {
 
     private static final String filename = "tmp/array.txt";
 
-    private static final String DELIMITER = "-".repeat(50);
+    private static final String DELIMITER = "-".repeat(70);
 
     private static final int MIN_CHUNK_CAPACITY = 500;
 
