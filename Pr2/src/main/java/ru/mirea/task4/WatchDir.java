@@ -40,14 +40,14 @@ public class WatchDir {
                 Path child = dir.resolve(name);
 
                 if (kind == StandardWatchEventKinds.ENTRY_CREATE) {
-                    log.info("Создан файл: {}", name);
+                    log.info("File was created: {}", name);
                     try {
                         if (Files.isRegularFile(child)) {
                             List<String> lines = Files.readAllLines(child, StandardCharsets.UTF_8);
                             fileContentCache.put(child, lines);
                         }
                     } catch (Exception e) {
-                        log.info("Не удалось прочитать файл после создания: {}", name);
+                        log.info("Failed to read file after creation: {}", name);
                     }
                 } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY) {
                     try {
@@ -60,7 +60,7 @@ public class WatchDir {
                             fileContentCache.put(child, newLines);
                         }
                     } catch (Exception e) {
-                        log.info("Не удалось обработать изменение файла: {}", name);
+                        log.info("Failed to compute file changes: {}", name);
                     }
                 } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
                     fileContentCache.remove(child);
@@ -84,8 +84,8 @@ public class WatchDir {
             if (!newSet.contains(s)) removed.add(s);
 
         if (!added.isEmpty())
-            log.info("В файл {} добавлены строки: {}", filename, added);
+            log.info("In file {} lines were added: {}", filename, added);
         if (!removed.isEmpty())
-            log.info("из файла {} удалены строки: {}", filename, removed);
+            log.info("In file {} lines were deleted: {}", filename, removed);
     }
 }

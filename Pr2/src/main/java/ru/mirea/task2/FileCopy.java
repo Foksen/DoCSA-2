@@ -32,7 +32,7 @@ public class FileCopy {
         action.run();
         long end = System.nanoTime();
         long memAfter = usedMemory();
-        System.out.printf("%s: Время = %.2f сек, Память = %.2f МБ\n", method, (end-start)/1e9, (memAfter-memBefore)/1024.0/1024.0);
+        System.out.printf("%s: Time = %.2f s, memory = %.2f MB\n", method, (end-start)/1e9, (memAfter-memBefore)/1024.0/1024.0);
     }
 
     static long usedMemory() {

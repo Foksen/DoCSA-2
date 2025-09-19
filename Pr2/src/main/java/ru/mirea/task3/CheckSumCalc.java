@@ -13,9 +13,9 @@ public class CheckSumCalc {
         String filename = args.length > 0 ? args[0] : DEFAULT_FILENAME;
         try {
             int checksum = calc16BitChecksum(filename);
-            System.out.printf("16-битная контрольная сумма файла %s: 0x%04X\n", filename, checksum);
+            System.out.printf("16-bit control sum of file %s: 0x%04X\n", filename, checksum);
         } catch (IOException e) {
-            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+            System.err.println("Error during file reading: " + e.getMessage());
         }
     }
 

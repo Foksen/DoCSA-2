@@ -29,9 +29,9 @@ public class ArraySum {
         int[] arr = readFile();
 
         log.info(DELIMITER);
-        executeAndMeasure("последовательный поиск суммы", ArraySum::sequentialSum, arr);
-        executeAndMeasure("поиск сумм подмассивов в отдельных потоках", ArraySum::threadSum, arr);
-        executeAndMeasure("поиск суммы с использованием ForkJoin", ArraySum::forkJoinSum, arr);
+        executeAndMeasure("sequential sum", ArraySum::sequentialSum, arr);
+        executeAndMeasure("thread sum", ArraySum::threadSum, arr);
+        executeAndMeasure("fork join sum", ArraySum::forkJoinSum, arr);
     }
 
     private static int[] readFile() throws IOException {
@@ -101,7 +101,7 @@ public class ArraySum {
         int maxThreadsCount = Runtime.getRuntime().availableProcessors();
         int requiredThreadsCount = Math.max(1, ceilDiv(len, MIN_CHUNK_CAPACITY));
         int optimalThreadsCount = Math.min(requiredThreadsCount, maxThreadsCount);
-        log.info("Потоков используется: {}", optimalThreadsCount);
+        log.info("Threads were used: {}", optimalThreadsCount);
         return optimalThreadsCount;
     }
 
@@ -127,9 +127,9 @@ public class ArraySum {
         double durationSec = (endTime - startTime) / 1000.;
         long memoryConsumptionKb = (endMemory - startMemory) / 1024;
 
-        log.info("Результат '{}': {}", funcName, result);
-        log.info("Время '{}': {} с", funcName, durationSec);
-        log.info("Память '{}': {} Кб", funcName, memoryConsumptionKb);
+        log.info("Result '{}': {}", funcName, result);
+        log.info("Time '{}': {} s", funcName, durationSec);
+        log.info("Memory '{}': {} KB", funcName, memoryConsumptionKb);
         log.info(DELIMITER);
     }
 }

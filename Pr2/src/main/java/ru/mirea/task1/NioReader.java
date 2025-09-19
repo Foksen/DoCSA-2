@@ -17,7 +17,7 @@ public class NioReader {
                 System.out.println(line);
             }
         } catch (IOException e) {
-            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+            System.err.println("Error during file reading: " + e.getMessage());
         }
     }
 }

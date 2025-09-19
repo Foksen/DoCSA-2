@@ -12,7 +12,7 @@ public class MultiThreadingSquare {
         Scanner scanner = new Scanner(System.in);
         Random random = new Random();
 
-        System.out.println("Введите целое число (или 'exit' для выхода): ");
+        System.out.println("Input a number (or 'exit'): ");
 
         while (true) {
             String line = scanner.nextLine();
@@ -23,11 +23,11 @@ public class MultiThreadingSquare {
                     int delaySec = 1 + random.nextInt(5);
                     Thread.sleep(delaySec * 1000L);
                     int result = number * number;
-                    System.out.println(number + " * " + number + " = " + result + " (задержка " + delaySec + " с)");
+                    System.out.println(number + " * " + number + " = " + result + " (delay " + delaySec + " s)");
                     return result;
                 });
             } catch (NumberFormatException e) {
-                System.out.println("Введите корректное целое число (или 'exit' для выхода): ");
+                System.out.println("Input a correct number (or 'exit'): ");
             }
         }
 

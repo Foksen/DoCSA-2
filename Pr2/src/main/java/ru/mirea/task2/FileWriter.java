@@ -15,7 +15,7 @@ public class FileWriter {
     private static final long SIZE = 100L * 1024 * 1024;
 
     public static void main(String[] args) {
-        String line = "Съешь ещё этих мягких французских булок да выпей чаю\n";
+        String line = "The quick brown fox jumps over the lazy dog\n";
         int lineBytes = line.getBytes(StandardCharsets.UTF_8).length;
         long bytesWritten = 0;
 
@@ -38,9 +38,9 @@ public class FileWriter {
                 bytesWritten += lineBytes;
             }
 
-            System.out.println("Файл создан. Размер " + bytesWritten / (1024 * 1024) + " МБ");
+            System.out.println("File was created. Size " + bytesWritten / (1024 * 1024) + " MB");
         } catch (IOException e) {
-            log.error("Не удалось создать файл: {}", e.getMessage());
+            log.error("Error during file creating: {}", e.getMessage());
         }
     }
 }
