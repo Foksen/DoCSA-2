@@ -1,2 +1,2 @@
 rootProject.name = 'DoCSA'
-include 'Pr1', 'Pr2'
+include 'Pr1', 'Pr2', 'Pr3'
