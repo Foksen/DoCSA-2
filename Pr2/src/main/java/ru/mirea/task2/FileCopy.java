@@ -32,7 +32,7 @@ public class FileCopy {
         action.run();
         long end = System.nanoTime();
         long memAfter = usedMemory();
-        System.out.printf("%s: Time = %.2f s, memory = %.2f MB\n", method, (end-start)/1e9, (memAfter-memBefore)/1024.0/1024.0);
+        System.out.printf("%s: Time = %.2f s, memory = %.2f MB\n", method, (end - start) / 1e9, (memAfter - memBefore) / 1024.0 / 1024.0);
     }
 
     static long usedMemory() {
@@ -53,10 +53,21 @@ public class FileCopy {
     }
 
     static void copyWithChannel(String src, String dst) {
-        try (FileChannel in = new FileInputStream(src).getChannel(); FileChannel out = new FileOutputStream(dst).getChannel()) {
+        try (
+                FileChannel in = new FileInputStream(src).getChannel();
+                FileChannel out = new FileOutputStream(dst).getChannel()
+        ) {
             in.transferTo(0, in.size(), out);
         } catch (IOException e) {
             log.error("CopyWithChannel IOException: {}", e.getMessage());
+        }
+    }
+
+    static void copyWithCommonsIO(String src, String dst) {
+        try {
+            FileUtils.copyFile(new java.io.File(src), new java.io.File(dst));
+        } catch (java.io.IOException e) {
+            log.error("CopyWithCommonsIO IOException: {}", e.getMessage());
         }
     }
 
@@ -65,13 +76,6 @@ public class FileCopy {
             Files.copy(Path.of(src), Path.of(dst), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             log.error("CopyWithFiles IOException: {}", e.getMessage());
-        }
-    }
-    static void copyWithCommonsIO(String src, String dst) {
-        try {
-            FileUtils.copyFile(new java.io.File(src), new java.io.File(dst));
-        } catch (java.io.IOException e) {
-            log.error("CopyWithCommonsIO IOException: {}", e.getMessage());
         }
     }
 

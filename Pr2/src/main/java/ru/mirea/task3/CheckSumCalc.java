@@ -20,8 +20,10 @@ public class CheckSumCalc {
     }
 
     public static int calc16BitChecksum(String filename) throws IOException {
-        try (FileInputStream fis = new FileInputStream(filename);
-             FileChannel channel = fis.getChannel()) {
+        try (
+                FileInputStream fis = new FileInputStream(filename);
+                FileChannel channel = fis.getChannel()
+        ) {
             ByteBuffer buffer = ByteBuffer.allocate(8192);
             int checksum = 0;
             while (channel.read(buffer) > 0) {

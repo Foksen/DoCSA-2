@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class WatchDir {
 
     private final Map<Path, List<String>> fileContentCache = new ConcurrentHashMap<>();
+    private final Map<Path, FileInfo> fileInfoCache = new ConcurrentHashMap<>();
     private final Path dir;
 
     public WatchDir(Path dir) {
@@ -45,6 +46,9 @@ public class WatchDir {
                         if (Files.isRegularFile(child)) {
                             List<String> lines = Files.readAllLines(child, StandardCharsets.UTF_8);
                             fileContentCache.put(child, lines);
+
+                            byte[] content = Files.readAllBytes(child);
+                            fileInfoCache.put(child, new FileInfo(content.length, calc16bitChecksum(content)));
                         }
                     } catch (Exception e) {
                         log.info("Failed to read file after creation: {}", name);
@@ -58,12 +62,24 @@ public class WatchDir {
                             printDiff(name, oldLines, newLines);
 
                             fileContentCache.put(child, newLines);
+
+                            byte[] content = Files.readAllBytes(child);
+                            fileInfoCache.put(child, new FileInfo(content.length, calc16bitChecksum(content)));
                         }
                     } catch (Exception e) {
                         log.info("Failed to compute file changes: {}", name);
                     }
                 } else if (kind == StandardWatchEventKinds.ENTRY_DELETE) {
                     fileContentCache.remove(child);
+
+                    FileInfo info = fileInfoCache.remove(child);
+                    if (info != null) {
+                        log.info("File was deleted: {}", name);
+                        log.info("  Last known size: {} bytes", info.size);
+                        log.info("  Last known checksum: 0x{}", String.format("%04X", info.checksum));
+                    } else {
+                        log.info("File was deleted: {}, no checksum/size info available.", name);
+                    }
                 }
             }
             boolean valid = key.reset();
@@ -87,5 +103,24 @@ public class WatchDir {
             log.info("In file {} lines were added: {}", filename, added);
         if (!removed.isEmpty())
             log.info("In file {} lines were deleted: {}", filename, removed);
+    }
+
+    private int calc16bitChecksum(byte[] bytes) {
+        int checksum = 0;
+        for (byte b : bytes) {
+            checksum += (b & 0xFF);
+            checksum = (checksum & 0xFFFF) + (checksum >>> 16);
+        }
+        return checksum & 0xFFFF;
+    }
+
+    private static class FileInfo {
+        final long size;
+        final int checksum;
+
+        public FileInfo(long size, int checksum) {
+            this.size = size;
+            this.checksum = checksum;
+        }
     }
 }
