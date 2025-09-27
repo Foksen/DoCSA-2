@@ -11,6 +11,6 @@ public class TemperatureSensor implements Sensor {
 
     @Override
     public Observable<Integer> getSensorData() {
-        return Observable.interval(1, TimeUnit.SECONDS).map(t -> 15 + random.nextInt(16));
+        return Observable.interval(3, TimeUnit.SECONDS).map(t -> 15 + random.nextInt(16));
     }
 }

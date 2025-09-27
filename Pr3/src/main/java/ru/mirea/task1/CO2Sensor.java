@@ -11,6 +11,6 @@ public class CO2Sensor implements Sensor {
 
     @Override
     public Observable<Integer> getSensorData() {
-        return Observable.interval(1, TimeUnit.SECONDS).map(t -> 30 + random.nextInt(71));
+        return Observable.interval(3, TimeUnit.SECONDS).map(t -> 30 + random.nextInt(71));
     }
 }
