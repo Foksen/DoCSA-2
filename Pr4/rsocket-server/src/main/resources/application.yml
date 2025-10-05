@@ -1,0 +1,20 @@
+spring:
+  r2dbc:
+    url: r2dbc:h2:file:///./tmp/rsocket-order-db
+    username: sa
+    password:
+    schema: classpath:schema.sql
+
+  rsocket:
+    server:
+      port: 7000
+      transport: tcp
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+
+logging:
+  level:
+    org.springframework.shell: OFF

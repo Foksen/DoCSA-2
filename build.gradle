@@ -15,6 +15,12 @@ subprojects {
         mavenCentral()
     }
 
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
+
     tasks.withType(JavaExec).configureEach {
         systemProperties['file.encoding'] = 'UTF-8'
     }

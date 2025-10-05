@@ -9,12 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static java.lang.Math.*;
+import static java.lang.Math.ceilDiv;
 
 @Slf4j
 public class ArraySum {
