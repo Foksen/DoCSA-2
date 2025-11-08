@@ -1,5 +1,5 @@
 rootProject.name = 'DoCSA'
-include 'Pr1', 'Pr2', 'Pr3', 'Pr4-rsocket-server', 'Pr4-rsocket-client'
+include 'Pr1', 'Pr2', 'Pr3', 'Pr4-rsocket-server', 'Pr4-rsocket-client', 'Pr7'
 
 project(':Pr4-rsocket-server').projectDir = file('Pr4/rsocket-server')
 project(':Pr4-rsocket-client').projectDir = file('Pr4/rsocket-client')
