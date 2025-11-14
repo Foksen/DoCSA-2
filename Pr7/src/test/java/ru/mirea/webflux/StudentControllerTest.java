@@ -75,14 +75,9 @@ public class StudentControllerTest {
     @Test
     void whenGetNonExistentStudentThenNotFound() {
         long nonExistentId = 999L;
-        Student student = webTestClient.get().uri("/students/" + nonExistentId)
+        webTestClient.get().uri("/students/" + nonExistentId)
                 .exchange()
-                .expectStatus().isOk()
-                .returnResult(Student.class)
-                .getResponseBody()
-                .blockFirst();
-
-        assertNull(student);
+                .expectStatus().isNotFound();
     }
 
     @Test

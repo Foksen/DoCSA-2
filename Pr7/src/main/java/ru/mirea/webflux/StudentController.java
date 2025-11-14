@@ -19,13 +19,13 @@ public class StudentController {
 
     @GetMapping
     public Flux<Student> getStudents() {
-        return studentRepository.findAll()
-                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found")));
+        return studentRepository.findAll();
     }
 
     @GetMapping("/{id}")
     public Mono<Student> getStudent(@PathVariable Long id) {
-        return studentRepository.findById(id);
+        return studentRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found")));
     }
 
     @PostMapping
