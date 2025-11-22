@@ -15,9 +15,199 @@
       "_type": "environment",
       "name": "Base Environment",
       "data": {
-        "gateway_url": "http://localhost:8080/api"
+        "gateway_url": "http://localhost:8080/api",
+        "auth_url": "http://localhost:9000",
+        "access_token": ""
       },
       "parentId": "wrk_shop"
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "name": "Auth Service",
+      "parentId": "wrk_shop"
+    },
+    {
+      "_id": "fld_auth_tokens",
+      "_type": "request_group",
+      "name": "OAuth2 / Tokens",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_oauth_authorize_url",
+      "_type": "request",
+      "name": "1. Authorization URL (Open in Browser)",
+      "method": "GET",
+      "url": "{{ _.auth_url }}/oauth2/authorize",
+      "parameters": [
+        {
+          "name": "response_type",
+          "value": "code"
+        },
+        {
+          "name": "client_id",
+          "value": "shop-client"
+        },
+        {
+          "name": "redirect_uri",
+          "value": "http://localhost:8080/login/oauth2/code/shop-client"
+        },
+        {
+          "name": "scope",
+          "value": "openid profile read write"
+        }
+      ],
+      "parentId": "fld_auth_tokens"
+    },
+    {
+      "_id": "req_oauth_token",
+      "_type": "request",
+      "name": "2. Exchange Code for Token",
+      "method": "POST",
+      "url": "{{ _.auth_url }}/oauth2/token",
+      "authentication": {
+        "type": "basic",
+        "username": "shop-client",
+        "password": "shop-secret"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "grant_type",
+            "value": "authorization_code"
+          },
+          {
+            "name": "code",
+            "value": "REPLACE_WITH_AUTH_CODE"
+          },
+          {
+            "name": "redirect_uri",
+            "value": "http://localhost:8080/login/oauth2/code/shop-client"
+          }
+        ]
+      },
+      "parentId": "fld_auth_tokens"
+    },
+    {
+      "_id": "req_oauth_refresh",
+      "_type": "request",
+      "name": "Refresh Token",
+      "method": "POST",
+      "url": "{{ _.auth_url }}/oauth2/token",
+      "authentication": {
+        "type": "basic",
+        "username": "shop-client",
+        "password": "shop-secret"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "grant_type",
+            "value": "refresh_token"
+          },
+          {
+            "name": "refresh_token",
+            "value": "REPLACE_WITH_REFRESH_TOKEN"
+          }
+        ]
+      },
+      "parentId": "fld_auth_tokens"
+    },
+    {
+      "_id": "fld_auth_users",
+      "_type": "request_group",
+      "name": "User Management",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_user_list",
+      "_type": "request",
+      "name": "🔒 Get All Users",
+      "method": "GET",
+      "url": "{{ _.gateway_url }}/auth/users",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "parentId": "fld_auth_users"
+    },
+    {
+      "_id": "req_user_get",
+      "_type": "request",
+      "name": "🔒 Get User by ID",
+      "method": "GET",
+      "url": "{{ _.gateway_url }}/auth/users/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "parentId": "fld_auth_users"
+    },
+    {
+      "_id": "req_user_create",
+      "_type": "request",
+      "name": "Create User (Registration)",
+      "method": "POST",
+      "url": "{{ _.gateway_url }}/auth/users",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\",\n  \"email\": \"testuser@example.com\"\n}"
+      },
+      "parentId": "fld_auth_users"
+    },
+    {
+      "_id": "req_user_update",
+      "_type": "request",
+      "name": "🔒 Update User",
+      "method": "PUT",
+      "url": "{{ _.gateway_url }}/auth/users/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"username\": \"updateduser\",\n  \"email\": \"updated@example.com\"\n}"
+      },
+      "parentId": "fld_auth_users"
+    },
+    {
+      "_id": "req_user_delete",
+      "_type": "request",
+      "name": "🔒 Delete User",
+      "method": "DELETE",
+      "url": "{{ _.gateway_url }}/auth/users/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "parentId": "fld_auth_users"
     },
     {
       "_id": "fld_product",
@@ -38,15 +228,19 @@
       "_type": "request",
       "name": "Get Product by ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/products/1",
+      "url": "{{ _.gateway_url }}/products/:id",
       "parentId": "fld_product"
     },
     {
       "_id": "req_product_create",
       "_type": "request",
-      "name": "Create Product",
+      "name": "🔒 Create Product",
       "method": "POST",
       "url": "{{ _.gateway_url }}/products",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "headers": [
         {
           "name": "Content-Type",
@@ -62,9 +256,13 @@
     {
       "_id": "req_product_update",
       "_type": "request",
-      "name": "Update Product",
+      "name": "🔒 Update Product",
       "method": "PUT",
-      "url": "{{ _.gateway_url }}/products/1",
+      "url": "{{ _.gateway_url }}/products/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "headers": [
         {
           "name": "Content-Type",
@@ -73,16 +271,20 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"name\": \"Laptop Pro\",\n  \"price\": 1800.00,\n  \"quantity\": 5\n}"
+        "text": "{\n  \"name\": \"Laptop Pro\",\n  \"price\": 1800.00\n}"
       },
       "parentId": "fld_product"
     },
     {
       "_id": "req_product_delete",
       "_type": "request",
-      "name": "Delete Product",
+      "name": "🔒 Delete Product",
       "method": "DELETE",
-      "url": "{{ _.gateway_url }}/products/1",
+      "url": "{{ _.gateway_url }}/products/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_product"
     },
     {
@@ -94,25 +296,61 @@
     {
       "_id": "req_customer_list",
       "_type": "request",
-      "name": "Get All Customers",
+      "name": "🔒 Get All Customers",
       "method": "GET",
       "url": "{{ _.gateway_url }}/customers",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_customer"
     },
     {
       "_id": "req_customer_get",
       "_type": "request",
-      "name": "Get Customer by ID",
+      "name": "🔒 Get Customer by ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/customers/1",
+      "url": "{{ _.gateway_url }}/customers/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "parentId": "fld_customer"
+    },
+    {
+      "_id": "req_customer_get_by_user",
+      "_type": "request",
+      "name": "🔒 Get Customer by User ID",
+      "method": "GET",
+      "url": "{{ _.gateway_url }}/customers/user/:userId",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "parentId": "fld_customer"
+    },
+    {
+      "_id": "req_customer_self",
+      "_type": "request",
+      "name": "🔒 Get Self Profile",
+      "method": "GET",
+      "url": "{{ _.gateway_url }}/customers/self",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_customer"
     },
     {
       "_id": "req_customer_create",
       "_type": "request",
-      "name": "Create Customer",
+      "name": "🔒 Create Customer",
       "method": "POST",
       "url": "{{ _.gateway_url }}/customers",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "headers": [
         {
           "name": "Content-Type",
@@ -121,16 +359,20 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"name\": \"Ivan Ivanov\",\n  \"email\": \"ivan@example.com\",\n  \"phone\": \"+7-999-123-45-67\",\n  \"address\": \"Moscow, Russia\"\n}"
+        "text": "{\n  \"userId\": 1,\n  \"name\": \"Ivan Ivanov\",\n  \"phone\": \"+7-999-123-45-67\",\n  \"address\": \"Moscow, Russia\"\n}"
       },
       "parentId": "fld_customer"
     },
     {
       "_id": "req_customer_update",
       "_type": "request",
-      "name": "Update Customer",
+      "name": "🔒 Update Customer",
       "method": "PUT",
-      "url": "{{ _.gateway_url }}/customers/1",
+      "url": "{{ _.gateway_url }}/customers/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "headers": [
         {
           "name": "Content-Type",
@@ -139,16 +381,20 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"name\": \"Ivan Petrov\",\n  \"email\": \"ivan.petrov@example.com\",\n  \"phone\": \"+7-999-111-22-33\",\n  \"address\": \"Saint Petersburg, Russia\"\n}"
+        "text": "{\n  \"name\": \"Ivan Petrov\",\n  \"phone\": \"+7-999-111-22-33\"\n}"
       },
       "parentId": "fld_customer"
     },
     {
       "_id": "req_customer_delete",
       "_type": "request",
-      "name": "Delete Customer",
+      "name": "🔒 Delete Customer",
       "method": "DELETE",
-      "url": "{{ _.gateway_url }}/customers/1",
+      "url": "{{ _.gateway_url }}/customers/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_customer"
     },
     {
@@ -160,33 +406,61 @@
     {
       "_id": "req_order_list",
       "_type": "request",
-      "name": "Get All Orders",
+      "name": "🔒 Get All Orders",
       "method": "GET",
       "url": "{{ _.gateway_url }}/orders",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_order"
     },
     {
       "_id": "req_order_get",
       "_type": "request",
-      "name": "Get Order by ID",
+      "name": "🔒 Get Order by ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/orders/1",
+      "url": "{{ _.gateway_url }}/orders/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_order"
     },
     {
       "_id": "req_order_by_customer",
       "_type": "request",
-      "name": "Get Orders by Customer",
+      "name": "🔒 Get Orders by Customer",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/orders/customer/1",
+      "url": "{{ _.gateway_url }}/orders/customer/:customerId",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
+      "parentId": "fld_order"
+    },
+    {
+      "_id": "req_order_self",
+      "_type": "request",
+      "name": "🔒 Get Self Orders",
+      "method": "GET",
+      "url": "{{ _.gateway_url }}/orders/self",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_order"
     },
     {
       "_id": "req_order_create",
       "_type": "request",
-      "name": "Create Order (uses Feign)",
+      "name": "🔒 Create Order",
       "method": "POST",
       "url": "{{ _.gateway_url }}/orders",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "headers": [
         {
           "name": "Content-Type",
@@ -195,26 +469,33 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"customerId\": 1,\n  \"productId\": 1,\n  \"quantity\": 2\n}"
+        "text": "{\n  \"productId\": 1,\n  \"quantity\": 2\n}"
       },
       "parentId": "fld_order"
     },
     {
       "_id": "req_order_update_status",
       "_type": "request",
-      "name": "Update Order Status",
+      "name": "🔒 Update Order Status",
       "method": "PUT",
-      "url": "{{ _.gateway_url }}/orders/1/status?status=COMPLETED",
+      "url": "{{ _.gateway_url }}/orders/:id/status?status=COMPLETED",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_order"
     },
     {
       "_id": "req_order_delete",
       "_type": "request",
-      "name": "Delete Order",
+      "name": "🔒 Delete Order",
       "method": "DELETE",
-      "url": "{{ _.gateway_url }}/orders/1",
+      "url": "{{ _.gateway_url }}/orders/:id",
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.access_token }}"
+      },
       "parentId": "fld_order"
     }
   ]
 }
-

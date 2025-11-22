@@ -1,15 +1,23 @@
 package ru.mirea.docsa2.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "customers")
-@Data
+@Table(name = "customers", indexes = {
+    @Index(name = "idx_customer_user_id", columnList = "userId")
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
@@ -18,16 +26,12 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Customer name is required")
+    @Column(nullable = false, unique = true)
+    private Long userId;
+
     @Column(nullable = false)
     private String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @NotBlank(message = "Phone is required")
     @Column(nullable = false)
     private String phone;
 

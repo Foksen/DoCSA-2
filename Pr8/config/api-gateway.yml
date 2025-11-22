@@ -41,7 +41,7 @@ spring:
           predicates:
             - Path=/api/auth/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=2
 
 server:
   port: 8080
