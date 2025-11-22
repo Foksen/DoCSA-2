@@ -21,9 +21,3 @@ build/
 
 target/
 out/
-
-application-local.yml
-application-local.yaml
-application-dev.yml
-application-dev.yaml
-

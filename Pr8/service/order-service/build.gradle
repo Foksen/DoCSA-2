@@ -52,3 +52,7 @@ dependencyManagement {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+tasks.named('bootRun') {
+	workingDir = rootProject.projectDir
+}

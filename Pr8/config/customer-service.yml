@@ -2,23 +2,8 @@ spring:
   application:
     name: customer-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/customer_db
-    username: postgres
-    password: postgres
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/customer_db
 
 server:
   port: 8082
-
-logging:
-  level:
-    ru.mirea.docsa2.customer: DEBUG
 
