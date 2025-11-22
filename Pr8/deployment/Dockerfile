@@ -1,9 +1,7 @@
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM gradle:8.14.3-jdk21-alpine AS build
 
 WORKDIR /workspace/app
 
-COPY gradlew .
-COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
 COPY gradle.properties .
@@ -13,8 +11,7 @@ COPY service service
 COPY config config
 
 ARG SERVICE_NAME
-RUN chmod +x gradlew
-RUN ./gradlew :${SERVICE_NAME}:build -x test
+RUN gradle :${SERVICE_NAME}:build -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 

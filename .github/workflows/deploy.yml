@@ -1,0 +1,28 @@
+name: Deploy to YC
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      
+      - name: Deploy to VM
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.YC_VM_HOST }}
+          username: ${{ secrets.YC_VM_USER }}
+          key: ${{ secrets.YC_VM_SSH_KEY }}
+          script: |
+            cd /opt/shop-app
+            git fetch origin
+            git reset --hard origin/master
+            cd Pr8/deployment
+            docker-compose down || true
+            docker-compose build --no-cache
+            docker-compose up -d
+            sleep 15
+            docker-compose ps
+
