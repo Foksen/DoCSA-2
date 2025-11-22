@@ -1,6 +1,5 @@
 .gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -13,6 +12,15 @@ build/
 *.tar.gz
 *.rar
 
+!gradlew
+!gradlew.bat
+!gradle/
+gradle/*
+!gradle/wrapper/
+gradle/wrapper/*
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
 .idea/
 *.iml
 *.ipr
@@ -21,3 +29,7 @@ build/
 
 target/
 out/
+
+# Environment variables
+.env
+deployment/.env

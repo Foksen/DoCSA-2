@@ -1,9 +1,14 @@
-version: '3.8'
+x-common-config: &common-config
+  SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
+
+x-common-eureka: &common-eureka
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
 
 services:
   auth-db:
     image: postgres:15-alpine
     container_name: shop-auth-db
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
     environment:
       POSTGRES_DB: auth_db
       POSTGRES_USER: postgres
@@ -14,13 +19,20 @@ services:
       - shop-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d auth_db"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   product-db:
     image: postgres:15-alpine
     container_name: shop-product-db
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
     environment:
       POSTGRES_DB: product_db
       POSTGRES_USER: postgres
@@ -31,13 +43,20 @@ services:
       - shop-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d product_db"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   customer-db:
     image: postgres:15-alpine
     container_name: shop-customer-db
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
     environment:
       POSTGRES_DB: customer_db
       POSTGRES_USER: postgres
@@ -48,13 +67,20 @@ services:
       - shop-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d customer_db"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   order-db:
     image: postgres:15-alpine
     container_name: shop-order-db
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
     environment:
       POSTGRES_DB: order_db
       POSTGRES_USER: postgres
@@ -65,169 +91,129 @@ services:
       - shop-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d order_db"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   config-server:
-    build:
-      context: ../
-      dockerfile: deployment/Dockerfile
-      args:
-        SERVICE_NAME: infra/config-server
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-config-server:${IMAGE_TAG:-latest}
     container_name: config-server
-    ports:
-      - "8888:8888"
     volumes:
       - ../config:/app/config:ro
     networks:
       - shop-network
     environment:
       SPRING_PROFILES_ACTIVE: native,prod
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    restart: unless-stopped
 
   eureka-server:
-    build:
-      context: ../
-      dockerfile: deployment/Dockerfile
-      args:
-        SERVICE_NAME: infra/eureka-server
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-eureka-server:${IMAGE_TAG:-latest}
     container_name: eureka-server
     ports:
       - "8761:8761"
     depends_on:
       config-server:
-        condition: service_healthy
+        condition: service_started
     networks:
       - shop-network
     environment:
+      <<: *common-config
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    restart: unless-stopped
 
   auth-service:
-    build:
-      context: ../
-      dockerfile: deployment/Dockerfile
-      args:
-        SERVICE_NAME: infra/auth-service
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-auth-service:${IMAGE_TAG:-latest}
     container_name: auth-service
-    ports:
-      - "9000:9000"
     depends_on:
       auth-db:
         condition: service_healthy
       config-server:
-        condition: service_healthy
+        condition: service_started
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     networks:
       - shop-network
     environment:
+      <<: [*common-config, *common-eureka]
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    restart: unless-stopped
 
   api-gateway:
-    build:
-      context: ../
-      dockerfile: deployment/Dockerfile
-      args:
-        SERVICE_NAME: infra/api-gateway
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-api-gateway:${IMAGE_TAG:-latest}
     container_name: api-gateway
     ports:
       - "8080:8080"
     depends_on:
       config-server:
-        condition: service_healthy
+        condition: service_started
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     networks:
       - shop-network
     environment:
+      <<: [*common-config, *common-eureka]
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    restart: unless-stopped
 
   product-service:
-    build:
-      context: ../
-      dockerfile: deployment/Dockerfile
-      args:
-        SERVICE_NAME: service/product-service
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-product-service:${IMAGE_TAG:-latest}
     container_name: product-service
-    ports:
-      - "8081:8081"
     depends_on:
       product-db:
         condition: service_healthy
       config-server:
-        condition: service_healthy
+        condition: service_started
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     networks:
       - shop-network
     environment:
+      <<: [*common-config, *common-eureka]
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://product-db:5432/product_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    restart: unless-stopped
 
   customer-service:
-    build:
-      context: ../
-      dockerfile: deployment/Dockerfile
-      args:
-        SERVICE_NAME: service/customer-service
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-customer-service:${IMAGE_TAG:-latest}
     container_name: customer-service
-    ports:
-      - "8082:8082"
     depends_on:
       customer-db:
         condition: service_healthy
       config-server:
-        condition: service_healthy
+        condition: service_started
       eureka-server:
-        condition: service_healthy
+        condition: service_started
     networks:
       - shop-network
     environment:
+      <<: [*common-config, *common-eureka]
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/customer_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    restart: unless-stopped
 
   order-service:
-    build:
-      context: ../
-      dockerfile: deployment/Dockerfile
-      args:
-        SERVICE_NAME: service/order-service
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-order-service:${IMAGE_TAG:-latest}
     container_name: order-service
-    ports:
-      - "8083:8083"
     depends_on:
       order-db:
         condition: service_healthy
       config-server:
-        condition: service_healthy
+        condition: service_started
       eureka-server:
-        condition: service_healthy
+        condition: service_started
       product-service:
         condition: service_started
       customer-service:
@@ -235,12 +221,12 @@ services:
     networks:
       - shop-network
     environment:
+      <<: [*common-config, *common-eureka]
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8888
       SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    restart: unless-stopped
 
 networks:
   shop-network:
