@@ -1,0 +1,13 @@
+rootProject.name = 'shop-microservices'
+
+include 'infra'
+include 'infra:config-server'
+include 'infra:eureka-server'
+include 'infra:api-gateway'
+include 'infra:auth-service'
+
+include 'service'
+include 'service:product-service'
+include 'service:customer-service'
+include 'service:order-service'
+
