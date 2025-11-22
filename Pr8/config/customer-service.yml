@@ -1,9 +1,4 @@
 spring:
-  application:
-    name: customer-service
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/customer_db
-
-server:
-  port: 8082
 

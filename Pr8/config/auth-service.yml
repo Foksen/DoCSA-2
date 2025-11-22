@@ -1,11 +1,6 @@
 spring:
-  application:
-    name: auth-service
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/auth_db
-
-server:
-  port: 9000
 
 logging:
   level:

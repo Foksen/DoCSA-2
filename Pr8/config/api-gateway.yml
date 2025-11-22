@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: api-gateway
   cloud:
     gateway:
       httpclient:
@@ -42,7 +40,4 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=2
-
-server:
-  port: 8080
 
