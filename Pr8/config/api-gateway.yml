@@ -41,3 +41,10 @@ spring:
           filters:
             - StripPrefix=2
 
+        - id: auth-oauth2
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/oauth2/**,/login/**,/logout/**
+          filters:
+            - StripPrefix=0
+

@@ -16,7 +16,7 @@
       "name": "Base Environment",
       "data": {
         "gateway_url": "http://localhost:8080/api",
-        "auth_url": "http://localhost:9000",
+        "auth_url": "http://localhost:8080",
         "access_token": ""
       },
       "parentId": "wrk_shop"

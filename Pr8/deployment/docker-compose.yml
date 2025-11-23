@@ -9,6 +9,8 @@ services:
     image: postgres:15-alpine
     container_name: shop-auth-db
     command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: auth_db
       POSTGRES_USER: postgres
@@ -33,6 +35,8 @@ services:
     image: postgres:15-alpine
     container_name: shop-product-db
     command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
+    ports:
+      - "5433:5432"
     environment:
       POSTGRES_DB: product_db
       POSTGRES_USER: postgres
@@ -57,6 +61,8 @@ services:
     image: postgres:15-alpine
     container_name: shop-customer-db
     command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
+    ports:
+      - "5434:5432"
     environment:
       POSTGRES_DB: customer_db
       POSTGRES_USER: postgres
@@ -81,6 +87,8 @@ services:
     image: postgres:15-alpine
     container_name: shop-order-db
     command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
+    ports:
+      - "5435:5432"
     environment:
       POSTGRES_DB: order_db
       POSTGRES_USER: postgres
