@@ -1,0 +1,26 @@
+spring:
+  boot:
+    admin:
+      ui:
+        title: Shop Microservices Admin
+        brand: <strong>Shop Admin</strong>
+      discovery:
+        enabled: true
+        ignored-services: 
+          - consul
+          - config-server
+          - admin-server
+      instance-proxy:
+        ignored-headers:
+          - Cookie
+          - Set-Cookie
+
+eureka:
+  instance:
+    prefer-ip-address: false
+    hostname: admin-server
+
+logging:
+  level:
+    de.codecentric.boot.admin: DEBUG
+

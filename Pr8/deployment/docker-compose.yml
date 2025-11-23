@@ -118,6 +118,12 @@ services:
       - shop-network
     environment:
       SPRING_PROFILES_ACTIVE: native,prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   eureka-server:
@@ -127,12 +133,41 @@ services:
       - "8761:8761"
     depends_on:
       config-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - shop-network
     environment:
       <<: *common-config
       SPRING_PROFILES_ACTIVE: prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  admin-server:
+    image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-admin-server:${IMAGE_TAG:-latest}
+    container_name: admin-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - shop-network
+    environment:
+      <<: [*common-config, *common-eureka]
+      SPRING_PROFILES_ACTIVE: prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   auth-service:
@@ -142,9 +177,9 @@ services:
       auth-db:
         condition: service_healthy
       config-server:
-        condition: service_started
+        condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - shop-network
     environment:
@@ -153,6 +188,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/auth_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   api-gateway:
@@ -162,14 +203,20 @@ services:
       - "8080:8080"
     depends_on:
       config-server:
-        condition: service_started
+        condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - shop-network
     environment:
       <<: [*common-config, *common-eureka]
       SPRING_PROFILES_ACTIVE: prod
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   product-service:
@@ -179,9 +226,9 @@ services:
       product-db:
         condition: service_healthy
       config-server:
-        condition: service_started
+        condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - shop-network
     environment:
@@ -190,6 +237,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://product-db:5432/product_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   customer-service:
@@ -199,9 +252,9 @@ services:
       customer-db:
         condition: service_healthy
       config-server:
-        condition: service_started
+        condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
     networks:
       - shop-network
     environment:
@@ -210,6 +263,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://customer-db:5432/customer_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   order-service:
@@ -219,13 +278,13 @@ services:
       order-db:
         condition: service_healthy
       config-server:
-        condition: service_started
+        condition: service_healthy
       eureka-server:
-        condition: service_started
+        condition: service_healthy
       product-service:
-        condition: service_started
+        condition: service_healthy
       customer-service:
-        condition: service_started
+        condition: service_healthy
     networks:
       - shop-network
     environment:
@@ -234,6 +293,12 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/order_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
 networks:

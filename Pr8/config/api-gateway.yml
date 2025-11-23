@@ -48,3 +48,10 @@ spring:
           filters:
             - StripPrefix=0
 
+        - id: admin-server
+          uri: lb://ADMIN-SERVER
+          predicates:
+            - Path=/admin/**
+          filters:
+            - StripPrefix=1
+

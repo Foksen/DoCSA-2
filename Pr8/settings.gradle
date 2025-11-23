@@ -5,6 +5,7 @@ include 'infra:config-server'
 include 'infra:eureka-server'
 include 'infra:api-gateway'
 include 'infra:auth-service'
+include 'infra:admin-server'
 
 include 'service'
 include 'service:product-service'

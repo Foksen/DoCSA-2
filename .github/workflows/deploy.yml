@@ -23,6 +23,7 @@ jobs:
         service:
           - { name: 'config-server', path: 'infra/config-server' }
           - { name: 'eureka-server', path: 'infra/eureka-server' }
+          - { name: 'admin-server', path: 'infra/admin-server' }
           - { name: 'auth-service', path: 'infra/auth-service' }
           - { name: 'api-gateway', path: 'infra/api-gateway' }
           - { name: 'product-service', path: 'service/product-service' }

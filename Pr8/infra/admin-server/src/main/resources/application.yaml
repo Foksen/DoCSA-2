@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: admin-server
+  config:
+    import: ${SPRING_CONFIG_IMPORT:configserver:http://localhost:8888}
+
+server:
+  port: 9090
+
