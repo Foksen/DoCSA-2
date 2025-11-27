@@ -65,9 +65,18 @@ public class CustomerController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody CreateCustomerRequest request) {
+    public ResponseEntity<CustomerResponse> createCustomer(@Valid @RequestBody CreateCustomerRequest request, Authentication authentication) {
+        Long userId = AuthenticationUtil.extractUserId(authentication);
+        if (userId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        if (customerRepository.findByUserId(userId).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        
         Customer customer = new Customer();
-        customer.setUserId(request.userId());
+        customer.setUserId(userId);
         customer.setName(request.name());
         customer.setPhone(request.phone());
         customer.setAddress(request.address());
@@ -77,10 +86,18 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomerResponse> updateCustomer(@PathVariable Long id, @Valid @RequestBody UpdateCustomerRequest request) {
+    public ResponseEntity<CustomerResponse> updateCustomer(@PathVariable Long id, @Valid @RequestBody UpdateCustomerRequest request, Authentication authentication) {
+        Long userId = AuthenticationUtil.extractUserId(authentication);
+        if (userId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        
         return customerRepository.findById(id)
                 .map(customer -> {
-                    if (request.userId() != null) customer.setUserId(request.userId());
+                    if (!customer.getUserId().equals(userId)) {
+                        return ResponseEntity.status(HttpStatus.FORBIDDEN).<CustomerResponse>build();
+                    }
+                    
                     if (request.name() != null) customer.setName(request.name());
                     if (request.phone() != null) customer.setPhone(request.phone());
                     if (request.address() != null) customer.setAddress(request.address());

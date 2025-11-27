@@ -14,6 +14,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -81,7 +82,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository() {
+    public RegisteredClientRepository registeredClientRepository(
+            @Value("${app.oauth2.redirect-uri}") String redirectUri) {
+        
         RegisteredClient shopClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("shop-client")
             .clientSecret(passwordEncoder().encode("shop-secret"))
@@ -89,8 +92,7 @@ public class SecurityConfig {
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-            .redirectUri("http://localhost:8080/login/oauth2/code/shop-client")
-            .redirectUri("http://84.201.149.182:8080/login/oauth2/code/shop-client")
+            .redirectUri(redirectUri)
             .scope(OidcScopes.OPENID)
             .scope(OidcScopes.PROFILE)
             .scope("read")
@@ -152,9 +154,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
+    public AuthorizationServerSettings authorizationServerSettings(
+            @Value("${spring.security.oauth2.authorizationserver.issuer}") String issuer) {
         return AuthorizationServerSettings.builder()
-            .issuer("http://localhost:9000")
+            .issuer(issuer)
             .build();
     }
 

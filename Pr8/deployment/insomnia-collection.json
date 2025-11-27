@@ -13,10 +13,9 @@
     {
       "_id": "env_base",
       "_type": "environment",
-      "name": "Base Environment",
+      "name": "Shop Environment",
       "data": {
-        "gateway_url": "http://localhost:8080/api",
-        "auth_url": "http://localhost:8080",
+        "domain": "158.160.141.26",
         "access_token": ""
       },
       "parentId": "wrk_shop"
@@ -38,7 +37,7 @@
       "_type": "request",
       "name": "1. Authorization URL (Open in Browser)",
       "method": "GET",
-      "url": "{{ _.auth_url }}/oauth2/authorize",
+      "url": "http://{{ _.domain }}:9000/oauth2/authorize",
       "parameters": [
         {
           "name": "response_type",
@@ -50,7 +49,7 @@
         },
         {
           "name": "redirect_uri",
-          "value": "http://localhost:8080/login/oauth2/code/shop-client"
+          "value": "http://{{ _.domain }}:8080/login/oauth2/code/shop-client"
         },
         {
           "name": "scope",
@@ -64,7 +63,7 @@
       "_type": "request",
       "name": "2. Exchange Code for Token",
       "method": "POST",
-      "url": "{{ _.auth_url }}/oauth2/token",
+      "url": "http://{{ _.domain }}:9000/oauth2/token",
       "authentication": {
         "type": "basic",
         "username": "shop-client",
@@ -100,7 +99,7 @@
       "_type": "request",
       "name": "Refresh Token",
       "method": "POST",
-      "url": "{{ _.auth_url }}/oauth2/token",
+      "url": "http://{{ _.domain }}:9000/oauth2/token",
       "authentication": {
         "type": "basic",
         "username": "shop-client",
@@ -138,7 +137,7 @@
       "_type": "request",
       "name": "🔒 Get All Users",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/auth/users",
+      "url": "http://{{ _.domain }}:8080/api/auth/users",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -150,7 +149,7 @@
       "_type": "request",
       "name": "🔒 Get User by ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/auth/users/:id",
+      "url": "http://{{ _.domain }}:8080/api/auth/users/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -162,7 +161,7 @@
       "_type": "request",
       "name": "Create User (Registration)",
       "method": "POST",
-      "url": "{{ _.gateway_url }}/auth/users",
+      "url": "http://{{ _.domain }}:8080/api/auth/users",
       "headers": [
         {
           "name": "Content-Type",
@@ -180,7 +179,7 @@
       "_type": "request",
       "name": "🔒 Update User",
       "method": "PUT",
-      "url": "{{ _.gateway_url }}/auth/users/:id",
+      "url": "http://{{ _.domain }}:8080/api/auth/users/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -202,7 +201,7 @@
       "_type": "request",
       "name": "🔒 Delete User",
       "method": "DELETE",
-      "url": "{{ _.gateway_url }}/auth/users/:id",
+      "url": "http://{{ _.domain }}:8080/api/auth/users/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -220,7 +219,7 @@
       "_type": "request",
       "name": "Get All Products",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/products",
+      "url": "http://{{ _.domain }}:8080/api/products",
       "parentId": "fld_product"
     },
     {
@@ -228,7 +227,7 @@
       "_type": "request",
       "name": "Get Product by ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/products/:id",
+      "url": "http://{{ _.domain }}:8080/api/products/:id",
       "parentId": "fld_product"
     },
     {
@@ -236,7 +235,7 @@
       "_type": "request",
       "name": "🔒 Create Product",
       "method": "POST",
-      "url": "{{ _.gateway_url }}/products",
+      "url": "http://{{ _.domain }}:8080/api/products",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -258,7 +257,7 @@
       "_type": "request",
       "name": "🔒 Update Product",
       "method": "PUT",
-      "url": "{{ _.gateway_url }}/products/:id",
+      "url": "http://{{ _.domain }}:8080/api/products/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -280,7 +279,7 @@
       "_type": "request",
       "name": "🔒 Delete Product",
       "method": "DELETE",
-      "url": "{{ _.gateway_url }}/products/:id",
+      "url": "http://{{ _.domain }}:8080/api/products/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -298,7 +297,7 @@
       "_type": "request",
       "name": "🔒 Get All Customers",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/customers",
+      "url": "http://{{ _.domain }}:8080/api/customers",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -310,7 +309,7 @@
       "_type": "request",
       "name": "🔒 Get Customer by ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/customers/:id",
+      "url": "http://{{ _.domain }}:8080/api/customers/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -322,7 +321,7 @@
       "_type": "request",
       "name": "🔒 Get Customer by User ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/customers/user/:userId",
+      "url": "http://{{ _.domain }}:8080/api/customers/user/:userId",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -334,7 +333,7 @@
       "_type": "request",
       "name": "🔒 Get Self Profile",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/customers/self",
+      "url": "http://{{ _.domain }}:8080/api/customers/self",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -346,7 +345,7 @@
       "_type": "request",
       "name": "🔒 Create Customer",
       "method": "POST",
-      "url": "{{ _.gateway_url }}/customers",
+      "url": "http://{{ _.domain }}:8080/api/customers",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -359,7 +358,7 @@
       ],
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"userId\": 1,\n  \"name\": \"Ivan Ivanov\",\n  \"phone\": \"+7-999-123-45-67\",\n  \"address\": \"Moscow, Russia\"\n}"
+        "text": "{\n  \"name\": \"Ivan Ivanov\",\n  \"phone\": \"+7-999-123-45-67\",\n  \"address\": \"Moscow, Russia\"\n}"
       },
       "parentId": "fld_customer"
     },
@@ -368,7 +367,7 @@
       "_type": "request",
       "name": "🔒 Update Customer",
       "method": "PUT",
-      "url": "{{ _.gateway_url }}/customers/:id",
+      "url": "http://{{ _.domain }}:8080/api/customers/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -390,7 +389,7 @@
       "_type": "request",
       "name": "🔒 Delete Customer",
       "method": "DELETE",
-      "url": "{{ _.gateway_url }}/customers/:id",
+      "url": "http://{{ _.domain }}:8080/api/customers/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -408,7 +407,7 @@
       "_type": "request",
       "name": "🔒 Get All Orders",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/orders",
+      "url": "http://{{ _.domain }}:8080/api/orders",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -420,7 +419,7 @@
       "_type": "request",
       "name": "🔒 Get Order by ID",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/orders/:id",
+      "url": "http://{{ _.domain }}:8080/api/orders/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -432,7 +431,7 @@
       "_type": "request",
       "name": "🔒 Get Orders by Customer",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/orders/customer/:customerId",
+      "url": "http://{{ _.domain }}:8080/api/orders/customer/:customerId",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -444,7 +443,7 @@
       "_type": "request",
       "name": "🔒 Get Self Orders",
       "method": "GET",
-      "url": "{{ _.gateway_url }}/orders/self",
+      "url": "http://{{ _.domain }}:8080/api/orders/self",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -456,7 +455,7 @@
       "_type": "request",
       "name": "🔒 Create Order",
       "method": "POST",
-      "url": "{{ _.gateway_url }}/orders",
+      "url": "http://{{ _.domain }}:8080/api/orders",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -478,7 +477,7 @@
       "_type": "request",
       "name": "🔒 Update Order Status",
       "method": "PUT",
-      "url": "{{ _.gateway_url }}/orders/:id/status?status=COMPLETED",
+      "url": "http://{{ _.domain }}:8080/api/orders/:id/status?status=COMPLETED",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"
@@ -490,7 +489,7 @@
       "_type": "request",
       "name": "🔒 Delete Order",
       "method": "DELETE",
-      "url": "{{ _.gateway_url }}/orders/:id",
+      "url": "http://{{ _.domain }}:8080/api/orders/:id",
       "authentication": {
         "type": "bearer",
         "token": "{{ _.access_token }}"

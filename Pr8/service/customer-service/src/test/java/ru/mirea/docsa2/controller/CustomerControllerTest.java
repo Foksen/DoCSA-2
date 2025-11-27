@@ -92,30 +92,84 @@ class CustomerControllerTest {
 
     @Test
     void createCustomer_ShouldReturnCreatedCustomer() {
-        CreateCustomerRequest request = new CreateCustomerRequest(100L, "Ivan", "+7-999-123-45-67", "Moscow");
+        Authentication auth = createMockAuthentication(100L);
+        CreateCustomerRequest request = new CreateCustomerRequest("Ivan", "+7-999-123-45-67", "Moscow");
         Customer savedCustomer = new Customer(1L, 100L, "Ivan", "+7-999-123-45-67", "Moscow");
         
+        when(customerRepository.findByUserId(100L)).thenReturn(Optional.empty());
         when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
 
-        ResponseEntity<CustomerResponse> response = customerController.createCustomer(request);
+        ResponseEntity<CustomerResponse> response = customerController.createCustomer(request, auth);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Ivan", response.getBody().name());
+        assertEquals(100L, response.getBody().userId());
+    }
+
+    @Test
+    void createCustomer_WhenCustomerAlreadyExists_ShouldReturnConflict() {
+        Authentication auth = createMockAuthentication(100L);
+        CreateCustomerRequest request = new CreateCustomerRequest("Ivan", "+7-999-123-45-67", "Moscow");
+        Customer existingCustomer = new Customer(1L, 100L, "Existing", "+7-999-000-00-00", "Moscow");
+        
+        when(customerRepository.findByUserId(100L)).thenReturn(Optional.of(existingCustomer));
+
+        ResponseEntity<CustomerResponse> response = customerController.createCustomer(request, auth);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        verify(customerRepository, never()).save(any(Customer.class));
+    }
+
+    @Test
+    void createCustomer_WhenUserIdNull_ShouldReturnBadRequest() {
+        Authentication auth = createMockAuthentication(null);
+        CreateCustomerRequest request = new CreateCustomerRequest("Ivan", "+7-999-123-45-67", "Moscow");
+
+        ResponseEntity<CustomerResponse> response = customerController.createCustomer(request, auth);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(customerRepository, never()).save(any(Customer.class));
     }
 
     @Test
     void updateCustomer_WhenExists_ShouldReturnUpdatedCustomer() {
-        UpdateCustomerRequest request = new UpdateCustomerRequest(100L, "Petr", "+7-999-111-22-33", null);
+        Authentication auth = createMockAuthentication(100L);
+        UpdateCustomerRequest request = new UpdateCustomerRequest("Petr", "+7-999-111-22-33", null);
         Customer existingCustomer = new Customer(1L, 100L, "Ivan", "+7-999-123-45-67", "Moscow");
         
         when(customerRepository.findById(1L)).thenReturn(Optional.of(existingCustomer));
         when(customerRepository.save(any(Customer.class))).thenReturn(existingCustomer);
 
-        ResponseEntity<CustomerResponse> response = customerController.updateCustomer(1L, request);
+        ResponseEntity<CustomerResponse> response = customerController.updateCustomer(1L, request, auth);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(customerRepository, times(1)).save(any(Customer.class));
+    }
+
+    @Test
+    void updateCustomer_WhenNotOwnProfile_ShouldReturnForbidden() {
+        Authentication auth = createMockAuthentication(100L);
+        UpdateCustomerRequest request = new UpdateCustomerRequest("Petr", "+7-999-111-22-33", null);
+        Customer existingCustomer = new Customer(1L, 999L, "Ivan", "+7-999-123-45-67", "Moscow");
+        
+        when(customerRepository.findById(1L)).thenReturn(Optional.of(existingCustomer));
+
+        ResponseEntity<CustomerResponse> response = customerController.updateCustomer(1L, request, auth);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
+        verify(customerRepository, never()).save(any(Customer.class));
+    }
+
+    @Test
+    void updateCustomer_WhenUserIdNull_ShouldReturnBadRequest() {
+        Authentication auth = createMockAuthentication(null);
+        UpdateCustomerRequest request = new UpdateCustomerRequest("Petr", "+7-999-111-22-33", null);
+
+        ResponseEntity<CustomerResponse> response = customerController.updateCustomer(1L, request, auth);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(customerRepository, never()).save(any(Customer.class));
     }
 
     @Test

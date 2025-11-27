@@ -1,9 +1,15 @@
 spring:
   security:
     oauth2:
+      authorizationserver:
+        issuer: http://auth-service:9000
       resourceserver:
         jwt:
           issuer-uri: http://auth-service:9000
+
+app:
+  oauth2:
+    redirect-uri: ${OAUTH2_REDIRECT_URI}
   jpa:
     show-sql: false
     properties:
