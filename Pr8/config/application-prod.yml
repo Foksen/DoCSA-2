@@ -4,6 +4,11 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://auth-service:9000
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
 
 eureka:
   client:
@@ -11,4 +16,12 @@ eureka:
       defaultZone: http://eureka-server:8761/eureka/
   instance:
     prefer-ip-address: false
+
+logging:
+  level:
+    root: WARN
+    ru.mirea.docsa2: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    com.netflix: WARN
 

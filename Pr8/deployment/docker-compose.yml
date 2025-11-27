@@ -4,13 +4,17 @@ x-common-config: &common-config
 x-common-eureka: &common-eureka
   EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
 
+x-common-logging: &common-logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
 services:
   auth-db:
     image: postgres:15-alpine
     container_name: shop-auth-db
-    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
-    ports:
-      - "5432:5432"
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off -c synchronous_commit=off
     environment:
       POSTGRES_DB: auth_db
       POSTGRES_USER: postgres
@@ -26,17 +30,12 @@ services:
       retries: 5
       start_period: 10s
     logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      <<: *common-logging
 
   product-db:
     image: postgres:15-alpine
     container_name: shop-product-db
-    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
-    ports:
-      - "5433:5432"
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off -c synchronous_commit=off
     environment:
       POSTGRES_DB: product_db
       POSTGRES_USER: postgres
@@ -52,17 +51,12 @@ services:
       retries: 5
       start_period: 10s
     logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      <<: *common-logging
 
   customer-db:
     image: postgres:15-alpine
     container_name: shop-customer-db
-    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
-    ports:
-      - "5434:5432"
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off -c synchronous_commit=off
     environment:
       POSTGRES_DB: customer_db
       POSTGRES_USER: postgres
@@ -78,17 +72,12 @@ services:
       retries: 5
       start_period: 10s
     logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      <<: *common-logging
 
   order-db:
     image: postgres:15-alpine
     container_name: shop-order-db
-    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off
-    ports:
-      - "5435:5432"
+    command: postgres -c log_statement=none -c log_duration=off -c log_connections=off -c log_disconnections=off -c synchronous_commit=off
     environment:
       POSTGRES_DB: order_db
       POSTGRES_USER: postgres
@@ -104,10 +93,7 @@ services:
       retries: 5
       start_period: 10s
     logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      <<: *common-logging
 
   config-server:
     image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-config-server:${IMAGE_TAG:-latest}
@@ -120,10 +106,12 @@ services:
       SPRING_PROFILES_ACTIVE: native,prod
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 30s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
   eureka-server:
@@ -141,10 +129,12 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 40s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
   admin-server:
@@ -164,15 +154,19 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 40s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
   auth-service:
     image: ${IMAGE_REGISTRY:-ghcr.io}/${IMAGE_PREFIX:-foksen/shop-microservices}-auth-service:${IMAGE_TAG:-latest}
     container_name: auth-service
+    ports:
+      - "9000:9000"
     depends_on:
       auth-db:
         condition: service_healthy
@@ -190,10 +184,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9000/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 40s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
   api-gateway:
@@ -213,10 +209,12 @@ services:
       SPRING_PROFILES_ACTIVE: prod
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 40s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
   product-service:
@@ -239,10 +237,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 40s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
   customer-service:
@@ -265,10 +265,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 40s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
   order-service:
@@ -295,10 +297,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: postgres
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
-      interval: 10s
+      interval: 30s
       timeout: 5s
-      retries: 5
+      retries: 3
       start_period: 40s
+    logging:
+      <<: *common-logging
     restart: unless-stopped
 
 networks:
